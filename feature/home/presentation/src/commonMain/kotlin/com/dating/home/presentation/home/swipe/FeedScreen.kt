@@ -381,7 +381,7 @@ fun FeedCardContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(28.dp))
             .clickable(onClick = onClick)
     ) {
         // Photo or placeholder
@@ -473,7 +473,7 @@ fun FeedCardContent(
                     Icon(
                         imageVector = Icons.Default.VerifiedUser,
                         contentDescription = "Verificado",
-                        tint = Color(0xFF4FC3F7),
+                        tint = Color(0xFF38BDF8),
                         modifier = Modifier.size(22.dp)
                     )
                 }

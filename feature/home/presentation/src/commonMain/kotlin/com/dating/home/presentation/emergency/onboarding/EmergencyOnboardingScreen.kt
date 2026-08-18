@@ -80,7 +80,7 @@ fun EmergencyOnboardingScreen(
         ),
         OnboardingPage(
             icon = Icons.Default.Sos,
-            iconTint = Color(0xFFE53935),
+            iconTint = Color(0xFFF43F5E),
             title = stringResource(Res.string.emergency_onboarding_step3_title),
             description = stringResource(Res.string.emergency_onboarding_step3_desc)
         )
