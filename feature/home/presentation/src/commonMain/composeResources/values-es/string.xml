@@ -657,4 +657,10 @@
     <string name="safe_date_safety_2_desc">Activa una alerta de emergencia al instante desde la pantalla de la cita. Tus contactos reciben tu ubicación por SMS.</string>
     <string name="safe_date_safety_3_title">Recordatorios de check-in</string>
     <string name="safe_date_safety_3_desc">Aura puede recordarte que hagas check-in con un contacto de confianza para que siempre sepan que estás bien.</string>
+    <string name="safety_check_title">¿Cómo estuvo tu cita con %1$s?</string>
+    <string name="safety_check_desc">Preguntamos después de cada cita planeada para mantener Aura seguro. Tu respuesta es privada.</string>
+    <string name="safety_check_ok">Todo bien</string>
+    <string name="safety_check_report">Reportar algo</string>
+    <string name="share_plan_button">Compartir plan</string>
+    <string name="share_plan_text">Mi plan de cita en Aura 🗓️\n\nCuándo: %1$s\nDónde: %2$s\n%3$s\n\nSi no sabes de mí después, escríbeme para confirmar que estoy bien.</string>
 </resources>

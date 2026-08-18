@@ -102,7 +102,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AppCenterTopBar(
-                    title = "",
+                    title = stringResource(Res.string.login),
                     containerColor = MaterialTheme.colorScheme.background,
                     onBack = { onAction(LoginAction.OnBackClick) }
                 )
@@ -115,22 +115,18 @@ fun LoginScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            AppBrandLogo(modifier = Modifier.size(80.dp))
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(Res.string.welcome_back),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             ChirpTextField(
                 state = state.emailTextFieldState,

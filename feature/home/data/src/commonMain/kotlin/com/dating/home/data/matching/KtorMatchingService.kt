@@ -20,6 +20,7 @@ import com.dating.home.data.dto.response.SwipeResponse
 import com.dating.home.domain.matching.Deck
 import com.dating.home.domain.matching.MatchInfo
 import com.dating.home.domain.matching.MatchingService
+import com.dating.home.domain.matching.PendingSafetyCheck
 import com.dating.home.domain.matching.ReceivedLike
 import com.dating.home.domain.matching.Venue
 import com.dating.home.domain.matching.SwipeAction
@@ -126,6 +127,14 @@ class KtorMatchingService(private val httpClient: HttpClient) : MatchingService 
             route = "/venues",
             queryParams = params
         ).map { list -> list.map { Venue(it.id, it.name, it.category, it.lat, it.lng, it.isPublicSpace) } }
+    }
+
+    override suspend fun getPendingSafetyChecks(): Result<List<PendingSafetyCheck>, DataError.Remote> {
+        return httpClient.get<List<com.dating.home.data.dto.PendingSafetyCheckResponse>>(
+            route = "/safety-checks/pending"
+        ).map { list ->
+            list.map { PendingSafetyCheck(it.id, it.matchId, it.user.toDomain(), it.askedAt) }
+        }
     }
 
     override suspend fun answerSafetyCheck(safetyCheckId: String, response: String): EmptyResult<DataError.Remote> {

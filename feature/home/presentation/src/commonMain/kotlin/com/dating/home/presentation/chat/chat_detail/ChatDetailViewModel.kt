@@ -863,6 +863,19 @@ class ChatDetailViewModel(
                 editingProposalLocation = null
             )
         }
+        loadSuggestedVenues()
+    }
+
+    // Módulo 4 (RN-4.9) — venues curados; espacios públicos primero. Se cargan al abrir el sheet.
+    private fun loadSuggestedVenues() {
+        if (_state.value.suggestedVenues.isNotEmpty()) return
+        viewModelScope.launch {
+            matchingService.getVenues().onSuccess { venues ->
+                _state.update {
+                    it.copy(suggestedVenues = venues.sortedByDescending { v -> v.isPublicSpace })
+                }
+            }
+        }
     }
 
     private fun onDismissDateProposalSheet() {
@@ -956,6 +969,7 @@ class ChatDetailViewModel(
                 editingProposalLocation = location
             )
         }
+        loadSuggestedVenues()
     }
 
     companion object {

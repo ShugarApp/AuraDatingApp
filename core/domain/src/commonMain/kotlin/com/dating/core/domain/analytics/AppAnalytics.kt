@@ -16,6 +16,7 @@ interface AppAnalytics {
         const val PLAN_CONFIRMED = "plan_confirmed"
         const val REPORT_CREATED = "report_created"
         const val MATCH_REVIVED = "match_revived"
+        const val SAFETY_CHECK_ANSWERED = "safety_check_answered"
         const val RADAR_SESSION_STARTED = "radar_session_started"
         const val RADAR_MATCH_CREATED = "radar_match_created"
         const val RADAR_MATCH_SAVED = "radar_match_saved"

@@ -59,6 +59,7 @@ class MatchesViewModel(
                 _state.update { it.copy(showDeleteMatchDialog = true, matchToDelete = action.match) }
             }
             is MatchesAction.OnReviveMatch -> reviveMatch(action.matchId)
+            is MatchesAction.OnAnswerSafetyCheck -> answerSafetyCheck(action.id, action.response)
             MatchesAction.OnConfirmDeleteMatch -> confirmDeleteMatch()
             MatchesAction.OnDismissDeleteMatchDialog -> {
                 _state.update { it.copy(showDeleteMatchDialog = false, matchToDelete = null) }
@@ -102,6 +103,13 @@ class MatchesViewModel(
                     }
                     .onFailure { error ->
                         _state.update { it.copy(error = error.toUiText()) }
+                    }
+            }
+
+            launch {
+                matchingService.getPendingSafetyChecks()
+                    .onSuccess { pending ->
+                        _state.update { it.copy(pendingSafetyChecks = pending) }
                     }
             }
         }.invokeOnCompletion {
@@ -161,6 +169,21 @@ class MatchesViewModel(
                     loadData()
                 }
                 .onFailure { error -> _state.update { it.copy(error = error.toUiText()) } }
+        }
+    }
+
+    private fun answerSafetyCheck(id: String, response: String) {
+        // Optimista: quitamos el check de la lista al instante para cerrar el diálogo.
+        _state.update { it.copy(pendingSafetyChecks = it.pendingSafetyChecks.filter { c -> c.id != id }) }
+        viewModelScope.launch {
+            matchingService.answerSafetyCheck(id, response)
+                .onSuccess {
+                    analytics.track(
+                        com.dating.core.domain.analytics.AppAnalytics.Events.SAFETY_CHECK_ANSWERED,
+                        mapOf("response" to response)
+                    )
+                }
+                .onFailure { error -> _events.send(MatchesEvent.Error(error.toUiText())) }
         }
     }
 

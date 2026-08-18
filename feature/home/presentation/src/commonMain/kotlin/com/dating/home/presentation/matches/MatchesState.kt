@@ -1,6 +1,7 @@
 package com.dating.home.presentation.matches
 
 import com.dating.core.presentation.util.UiText
+import com.dating.home.domain.matching.PendingSafetyCheck
 
 enum class MatchesTab { MATCHES, LIKES }
 
@@ -16,7 +17,9 @@ data class MatchesState(
     val error: UiText? = null,
     val showDeleteMatchDialog: Boolean = false,
     val matchToDelete: Match? = null,
-    val isDeletingMatch: Boolean = false
+    val isDeletingMatch: Boolean = false,
+    // Módulo 4 — safety checks post-cita pendientes de responder (RN-4.8).
+    val pendingSafetyChecks: List<PendingSafetyCheck> = emptyList()
 )
 
 data class Match(
@@ -48,6 +51,8 @@ sealed interface MatchesAction {
     data class OnDeleteMatchClick(val match: Match) : MatchesAction
     // Módulo 4 — revive an expired match (RN-4.5).
     data class OnReviveMatch(val matchId: String) : MatchesAction
+    // Módulo 4 — responder un safety check post-cita (RN-4.8). response = 'ok' | 'report'.
+    data class OnAnswerSafetyCheck(val id: String, val response: String) : MatchesAction
     data object OnConfirmDeleteMatch : MatchesAction
     data object OnDismissDeleteMatchDialog : MatchesAction
     data object OnToggleViewMode : MatchesAction

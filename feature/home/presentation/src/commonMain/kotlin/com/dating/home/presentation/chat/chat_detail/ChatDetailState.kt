@@ -41,6 +41,8 @@ data class ChatDetailState(
     val editingProposalMessageId: String? = null,
     val editingProposalDateTime: String? = null,
     val editingProposalLocation: DateProposalLocation? = null,
+    // Módulo 4 (RN-4.9) — venues curados sugeridos en el sheet de propuesta (públicos primero).
+    val suggestedVenues: List<com.dating.home.domain.matching.Venue> = emptyList(),
     val showLocationPicker: Boolean = false,
     // Módulo 1/4 — info del match para el header del chat (badge intención + timer 48h).
     val otherUserIntention: String? = null,

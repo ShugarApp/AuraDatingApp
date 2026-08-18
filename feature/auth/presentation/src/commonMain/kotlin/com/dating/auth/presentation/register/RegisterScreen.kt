@@ -92,7 +92,7 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AppCenterTopBar(
-                    title = "",
+                    title = stringResource(Res.string.create_account),
                     containerColor = MaterialTheme.colorScheme.background,
                     onBack = { onAction(RegisterCredentialsAction.OnBackClick) }
                 )
@@ -106,23 +106,19 @@ fun RegisterScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            AppBrandLogo(modifier = Modifier.size(80.dp))
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(Res.string.create_account),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             ChirpTextField(
                 state = state.emailTextState,

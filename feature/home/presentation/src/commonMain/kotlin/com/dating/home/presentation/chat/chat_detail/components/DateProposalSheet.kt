@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.dating.home.domain.matching.Venue
 import com.dating.home.domain.models.DateProposalLocation
 
 @Composable
@@ -58,7 +60,8 @@ fun DateProposalSheet(
     onSubmit: (dateTime: String, location: DateProposalLocation) -> Unit,
     initialDateTime: String? = null,
     initialLocation: DateProposalLocation? = null,
-    isEditing: Boolean = false
+    isEditing: Boolean = false,
+    suggestedVenues: List<Venue> = emptyList()
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -202,6 +205,23 @@ fun DateProposalSheet(
                     isSelected = selectedLocation != null,
                     onClick = { showLocationPicker = true }
                 )
+
+                // Módulo 4 (RN-4.9) — sugerencias curadas; espacios públicos recomendados.
+                if (suggestedVenues.isNotEmpty()) {
+                    VenueSuggestions(
+                        venues = suggestedVenues,
+                        selectedName = selectedLocation?.name,
+                        onVenueClick = { venue ->
+                            selectedLocation = DateProposalLocation(
+                                name = venue.name,
+                                address = venue.category,
+                                latitude = venue.lat,
+                                longitude = venue.lng,
+                                placeId = venue.id
+                            )
+                        }
+                    )
+                }
             }
 
             // Summary card — appears when all fields are filled
@@ -245,6 +265,89 @@ fun DateProposalSheet(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VenueSuggestions(
+    venues: List<Venue>,
+    selectedName: String?,
+    onVenueClick: (Venue) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = "SUGGESTED PLACES",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+        )
+        venues.take(5).forEach { venue ->
+            val isSelected = selectedName == venue.name
+            Surface(
+                onClick = { onVenueClick(venue) },
+                shape = RoundedCornerShape(12.dp),
+                color = if (isSelected)
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                else
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = venue.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = venue.category,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    if (venue.isPublicSpace) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        ) {
+                            Text(
+                                text = "Public",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+                    if (isSelected) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
         }
     }

@@ -308,7 +308,8 @@ fun ChatDetailRoot(
             },
             initialDateTime = state.editingProposalDateTime,
             initialLocation = state.editingProposalLocation,
-            isEditing = state.editingProposalMessageId != null
+            isEditing = state.editingProposalMessageId != null,
+            suggestedVenues = state.suggestedVenues
         )
     }
 

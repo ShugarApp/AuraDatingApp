@@ -14,6 +14,7 @@ import aura.feature.home.presentation.generated.resources.delete_match_success
 import aura.feature.home.presentation.generated.resources.delete_match_title
 import com.dating.core.designsystem.components.dialogs.DestructiveConfirmationDialog
 import com.dating.core.presentation.util.ObserveAsEvents
+import com.dating.home.presentation.matches.components.SafetyCheckDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -49,6 +50,16 @@ fun MatchesRoot(
         onAction = viewModel::onAction,
         modifier = modifier
     )
+
+    // Módulo 4 (RN-4.8) — safety check post-cita: se muestra el primero pendiente hasta responderlo.
+    state.pendingSafetyChecks.firstOrNull()?.let { pending ->
+        SafetyCheckDialog(
+            otherUsername = pending.user.username,
+            onAnswer = { response ->
+                viewModel.onAction(MatchesAction.OnAnswerSafetyCheck(pending.id, response))
+            }
+        )
+    }
 
     if (state.showDeleteMatchDialog) {
         val username = state.matchToDelete?.username ?: ""
