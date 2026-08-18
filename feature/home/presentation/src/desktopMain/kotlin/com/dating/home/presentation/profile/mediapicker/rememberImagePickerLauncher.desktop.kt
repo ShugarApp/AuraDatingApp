@@ -53,7 +53,7 @@ fun getMimeTypeFromFileName(fileName: String): String? {
     }
 }
 
-private suspend fun pickImage(fileDialogTitle: String): PickedImageData? {
+internal suspend fun pickImage(fileDialogTitle: String): PickedImageData? {
     val file = suspendCancellableCoroutine<File?> { continuation ->
         var fileDialog: FileDialog? = null
 
