@@ -8,6 +8,7 @@ import com.dating.core.domain.util.DataError
 import com.dating.core.domain.util.onFailure
 import com.dating.core.domain.util.onSuccess
 import com.dating.core.presentation.util.toUiText
+import com.dating.home.domain.chat.ChatConnectionClient
 import com.dating.home.domain.matching.SwipeAction
 import com.dating.home.domain.radar.RadarService
 import kotlinx.coroutines.channels.Channel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class RadarViewModel(
     private val radarService: RadarService,
     private val locationProvider: LocationProvider,
+    private val connectionClient: ChatConnectionClient,
     private val analytics: AppAnalytics
 ) : ViewModel() {
 
@@ -28,6 +30,25 @@ class RadarViewModel(
 
     private val _events = Channel<RadarEvent>()
     val events = _events.receiveAsFlow()
+
+    init {
+        observeRadarPresence()
+    }
+
+    // Módulo 5 (RN-5.6) — presencia en tiempo real vía el WS del chat. `present=false` quita al
+    // usuario del feed al instante (pánico/salir/expirar ≤5s); `present=true` refresca para traerlo.
+    private fun observeRadarPresence() {
+        viewModelScope.launch {
+            connectionClient.radarPresence.collect { event ->
+                if (_state.value.activeSession == null) return@collect
+                if (event.present) {
+                    loadFeed()
+                } else {
+                    _state.update { it.copy(feed = it.feed.filter { p -> p.user.id != event.userId }) }
+                }
+            }
+        }
+    }
 
     fun onAction(action: RadarAction) {
         when (action) {

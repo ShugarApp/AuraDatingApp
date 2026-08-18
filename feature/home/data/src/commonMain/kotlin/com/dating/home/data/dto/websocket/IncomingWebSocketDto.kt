@@ -10,7 +10,8 @@ enum class IncomingWebSocketType {
     CHAT_PARTICIPANTS_CHANGED,
     TYPING_INDICATOR,
     MESSAGE_REACTION_UPDATED,
-    DATE_PROPOSAL_UPDATED
+    DATE_PROPOSAL_UPDATED,
+    RADAR_PRESENCE
 }
 
 @Serializable
@@ -78,5 +79,13 @@ sealed interface IncomingWebSocketDto {
         val status: String,
         val content: String,
         val type: IncomingWebSocketType = IncomingWebSocketType.DATE_PROPOSAL_UPDATED
+    ): IncomingWebSocketDto
+
+    // Módulo 5 (RN-5.6) — presencia de radar en tiempo real; present=false → quitar del feed ya.
+    @Serializable
+    data class RadarPresenceDto(
+        val userId: String,
+        val present: Boolean,
+        val type: IncomingWebSocketType = IncomingWebSocketType.RADAR_PRESENCE
     ): IncomingWebSocketDto
 }
