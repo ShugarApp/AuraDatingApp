@@ -31,6 +31,14 @@ data class MatchInfo(
     val origin: String
 )
 
+// Módulo 4 — safety check pendiente de responder (RN-4.8).
+data class PendingSafetyCheck(
+    val id: String,
+    val matchId: String,
+    val user: User,
+    val askedAt: String
+)
+
 // Módulo 4 — venue curado para el primer encuentro (RN-4.9).
 data class Venue(
     val id: String,
@@ -78,6 +86,7 @@ interface MatchingService {
     suspend fun reviveMatch(matchId: String): EmptyResult<DataError.Remote>
     // Módulo 4 — venues curados (RN-4.9), safety check (RN-4.8) y transiciones de plan (RN-4.2).
     suspend fun getVenues(category: String? = null): Result<List<Venue>, DataError.Remote>
+    suspend fun getPendingSafetyChecks(): Result<List<PendingSafetyCheck>, DataError.Remote>
     suspend fun answerSafetyCheck(safetyCheckId: String, response: String): EmptyResult<DataError.Remote>
     suspend fun markPlanProposed(matchId: String): EmptyResult<DataError.Remote>
     suspend fun markPlanConfirmed(matchId: String): EmptyResult<DataError.Remote>

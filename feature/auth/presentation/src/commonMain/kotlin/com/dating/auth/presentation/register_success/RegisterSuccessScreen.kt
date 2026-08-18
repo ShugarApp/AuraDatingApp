@@ -1,15 +1,25 @@
 package com.dating.auth.presentation.register_success
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.dating.core.designsystem.theme.extended
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import aura.feature.auth.presentation.generated.resources.Res
 import aura.feature.auth.presentation.generated.resources.account_successfully_created
@@ -77,7 +87,28 @@ fun RegisterSuccessScreen(
             title = stringResource(Res.string.account_successfully_created),
             description = stringResource(Res.string.verification_email_sent_to_x, state.registeredEmail),
             icon = {
-                AppBrandLogo(modifier = Modifier.size(80.dp))
+                Box(
+                    modifier = Modifier
+                        .size(112.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.extended.success.copy(alpha = 0.14f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.extended.success),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(44.dp)
+                        )
+                    }
+                }
             },
             primaryButton = {
                 ChirpButton(
