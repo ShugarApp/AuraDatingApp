@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 
 class MatchesViewModel(
     private val matchingService: MatchingService,
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val analytics: com.dating.core.domain.analytics.AppAnalytics
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MatchesState())
@@ -57,6 +58,7 @@ class MatchesViewModel(
             is MatchesAction.OnDeleteMatchClick -> {
                 _state.update { it.copy(showDeleteMatchDialog = true, matchToDelete = action.match) }
             }
+            is MatchesAction.OnReviveMatch -> reviveMatch(action.matchId)
             MatchesAction.OnConfirmDeleteMatch -> confirmDeleteMatch()
             MatchesAction.OnDismissDeleteMatchDialog -> {
                 _state.update { it.copy(showDeleteMatchDialog = false, matchToDelete = null) }
@@ -77,10 +79,10 @@ class MatchesViewModel(
 
             launch {
                 matchingService.getMatches()
-                    .onSuccess { users ->
+                    .onSuccess { matches ->
                         _state.update {
                             it.copy(
-                                matches = users.map { user -> user.toMatch() }
+                                matches = matches.map { m -> m.toMatch() }
                             )
                         }
                     }
@@ -90,11 +92,11 @@ class MatchesViewModel(
             }
 
             launch {
-                matchingService.getLikes()
-                    .onSuccess { users ->
+                matchingService.getLikesWithNotes()
+                    .onSuccess { received ->
                         _state.update {
                             it.copy(
-                                likes = users.map { user -> user.toMatch() }
+                                likes = received.map { r -> r.toMatch() }
                             )
                         }
                     }
@@ -117,6 +119,50 @@ class MatchesViewModel(
         age = birthDate?.let { calculateAge(it) },
         intention = intention
     )
+
+    private fun com.dating.home.domain.matching.ReceivedLike.toMatch(): Match {
+        val u = user
+        return Match(
+            id = u.id,
+            username = u.username,
+            profilePictureUrl = u.profilePictureUrl,
+            photos = u.photos,
+            city = u.city,
+            country = u.country,
+            age = u.birthDate?.let { calculateAge(it) },
+            intention = u.intention,
+            likeNote = likeNote
+        )
+    }
+
+    private fun com.dating.home.domain.matching.MatchInfo.toMatch(): Match {
+        val u = user
+        return Match(
+            id = u.id,
+            username = u.username,
+            profilePictureUrl = u.profilePictureUrl,
+            photos = u.photos,
+            city = u.city,
+            country = u.country,
+            age = u.birthDate?.let { calculateAge(it) },
+            intention = u.intention,
+            matchId = matchId,
+            state = state,
+            expiresAt = expiresAt.ifEmpty { null },
+            revivedOnce = revivedOnce
+        )
+    }
+
+    private fun reviveMatch(matchId: String) {
+        viewModelScope.launch {
+            matchingService.reviveMatch(matchId)
+                .onSuccess {
+                    analytics.track(com.dating.core.domain.analytics.AppAnalytics.Events.MATCH_REVIVED)
+                    loadData()
+                }
+                .onFailure { error -> _state.update { it.copy(error = error.toUiText()) } }
+        }
+    }
 
     private fun confirmDeleteMatch() {
         val match = _state.value.matchToDelete ?: return

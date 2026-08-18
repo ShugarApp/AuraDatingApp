@@ -42,6 +42,8 @@ sealed interface ChatDetailAction {
     data object OnConfirmDeleteMatch: ChatDetailAction
     data object OnDismissDeleteMatchDialog: ChatDetailAction
     data object OnReportUserClick: ChatDetailAction
+    // Módulo 2 — contextual report from a specific message (RN-2.1).
+    data class OnReportMessageClick(val messageId: String): ChatDetailAction
     data class OnSubmitReport(val reason: com.dating.home.domain.report.ReportReason, val description: String?): ChatDetailAction
     data object OnDismissReportSheet: ChatDetailAction
     data object OnConfirmBlockAfterReport: ChatDetailAction

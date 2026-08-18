@@ -2,6 +2,7 @@ package com.dating.home.presentation.home.swipe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dating.core.domain.analytics.AppAnalytics
 import com.dating.core.domain.auth.SessionStorage
 import com.dating.core.domain.auth.VerificationStatus
 import com.dating.core.domain.auth.profileCompletion
@@ -28,7 +29,8 @@ class FeedViewModel(
     private val matchingService: MatchingService,
     private val discoveryPreferences: DiscoveryPreferencesStorage,
     private val sessionStorage: SessionStorage,
-    private val userService: UserService
+    private val userService: UserService,
+    private val analytics: AppAnalytics
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FeedState())
@@ -108,7 +110,7 @@ class FeedViewModel(
     fun onAction(action: FeedAction) {
         when (action) {
             is FeedAction.OnRefresh -> resetAndLoadFeed()
-            is FeedAction.OnSwipeRight -> swipe(action.userId, SwipeAction.LIKE)
+            is FeedAction.OnSwipeRight -> onLikeIntent(action.userId)
             is FeedAction.OnSwipeLeft -> swipe(action.userId, SwipeAction.DISLIKE)
             is FeedAction.OnUserClick -> {
                 viewModelScope.launch {
@@ -172,7 +174,49 @@ class FeedViewModel(
             FeedAction.OnUndoSwipe -> undoSwipe()
             FeedAction.OnResumeAccount -> resumeAccount()
             is FeedAction.OnUserBlocked -> removeUser(action.userId)
+            is FeedAction.OnSubmitLikeNote -> submitLikeNote(action.note)
+            FeedAction.OnDismissLikeNote -> cancelLikeNote()
         }
+    }
+
+    // Módulo 3 — a like requires a note (RN-3.3). Open the note sheet; remove the card
+    // optimistically (matching the swipe animation) and restore it if the user cancels.
+    private fun onLikeIntent(userId: String) {
+        val item = _state.value.feedItems.firstOrNull { it.userId == userId } ?: return
+        _state.update {
+            it.copy(
+                feedItems = it.feedItems.filter { i -> i.userId != userId },
+                pendingLikeItem = item,
+                showLikeNoteSheet = true,
+                likeNoteError = false
+            )
+        }
+    }
+
+    private fun cancelLikeNote() {
+        _state.update { current ->
+            val restored = current.pendingLikeItem?.let { listOf(it) + current.feedItems } ?: current.feedItems
+            current.copy(
+                feedItems = restored,
+                pendingLikeItem = null,
+                showLikeNoteSheet = false,
+                likeNoteError = false,
+                isDeckExhausted = restored.isEmpty()
+            )
+        }
+    }
+
+    private fun submitLikeNote(note: String) {
+        if (note.trim().length < LIKE_NOTE_MIN_LENGTH) {
+            _state.update { it.copy(likeNoteError = true) }
+            return
+        }
+        val item = _state.value.pendingLikeItem ?: return
+        _state.update {
+            it.copy(showLikeNoteSheet = false, pendingLikeItem = null, likeNoteError = false)
+        }
+        analytics.track(AppAnalytics.Events.LIKE_WITH_NOTE)
+        performSwipe(item, SwipeAction.LIKE, note.trim())
     }
 
     private fun removeUser(userId: String) {
@@ -248,16 +292,14 @@ class FeedViewModel(
                 Gender.EVERYONE -> null
                 else -> s.showMe.apiValue
             }
-            matchingService.getFeed(
+            matchingService.getDeck(
                 gender = genderFilter,
                 minAge = s.minAge,
                 maxAge = s.maxAge,
-                maxDistance = s.maxDistance,
-                page = page,
-                size = PAGE_SIZE
+                maxDistance = s.maxDistance
             )
-                .onSuccess { users ->
-                    val newItems = users
+                .onSuccess { deck ->
+                    val newItems = deck.profiles
                         .filter { it.id !in blockedUserIds }
                         .map { user ->
                             FeedItem(
@@ -269,16 +311,20 @@ class FeedViewModel(
                                 country = user.country,
                                 age = calculateAge(user.birthDate),
                                 isVerified = user.verificationStatus == VerificationStatus.VERIFIED,
-                                intention = user.intention
+                                intention = user.intention,
+                                publicFlagUntil = user.publicFlagUntil
                             )
                         }
+                    if (newItems.isEmpty()) analytics.track(AppAnalytics.Events.DECK_EXHAUSTED)
                     _state.update {
                         it.copy(
                             isLoading = false,
                             isFetchingMore = false,
-                            feedItems = if (isInitialLoad) newItems else it.feedItems + newItems,
-                            currentPage = page,
-                            hasMore = newItems.isNotEmpty()
+                            feedItems = newItems,
+                            remaining = deck.remaining,
+                            resetsAt = deck.resetsAt,
+                            isDeckExhausted = newItems.isEmpty(),
+                            hasMore = false
                         )
                     }
                 }
@@ -294,39 +340,41 @@ class FeedViewModel(
         }
     }
 
-    private fun prefetchIfNeeded() {
-        val s = _state.value
-        if (s.feedItems.size <= PREFETCH_THRESHOLD && s.hasMore && !s.isFetchingMore && !s.isLoading) {
-            loadFeed(page = s.currentPage + 1, isInitialLoad = false)
-        }
-    }
+    // Módulo 3 — the deck is a fixed daily set; there is no pagination/prefetch.
+    private fun prefetchIfNeeded() = Unit
 
     private fun swipe(userId: String, action: SwipeAction) {
-        val currentItems = _state.value.feedItems
-        val swipedItem = currentItems.firstOrNull { it.userId == userId }
-        val matchedName = swipedItem?.username
+        val swipedItem = _state.value.feedItems.firstOrNull { it.userId == userId } ?: return
         _state.update { current ->
+            val remainingItems = current.feedItems.filter { it.userId != userId }
             current.copy(
-                feedItems = current.feedItems.filter { it.userId != userId },
-                lastDislikedItem = if (action == SwipeAction.DISLIKE) swipedItem else null
+                feedItems = remainingItems,
+                lastDislikedItem = if (action == SwipeAction.DISLIKE) swipedItem else null,
+                isDeckExhausted = remainingItems.isEmpty()
             )
         }
-        prefetchIfNeeded()
+        performSwipe(swipedItem, action, likeNote = null)
+    }
+
+    // Módulo 3 — all swipes go through the deck swipe endpoint so the server records the
+    // like note (RN-3.3) and decrements the deck. The card is already removed by the caller.
+    private fun performSwipe(item: FeedItem, action: SwipeAction, likeNote: String?) {
         viewModelScope.launch {
-            matchingService.swipe(swipedId = userId, action = action)
+            matchingService.discoverySwipe(targetId = item.userId, action = action, likeNote = likeNote)
                 .onSuccess { result ->
-                    if (result.isMatch) {
-                        _state.update {
-                            it.copy(
-                                showMatchDialog = true,
-                                matchedUserId = userId,
-                                matchedUserName = matchedName,
-                                matchedUserPhotoUrl = swipedItem?.profilePictureUrl
-                            )
-                        }
+                    _state.update {
+                        val newRemaining = (it.remaining - 1).coerceAtLeast(0)
+                        it.copy(
+                            remaining = newRemaining,
+                            isDeckExhausted = it.feedItems.isEmpty(),
+                            showMatchDialog = result.isMatch || it.showMatchDialog,
+                            matchedUserId = if (result.isMatch) item.userId else it.matchedUserId,
+                            matchedUserName = if (result.isMatch) item.username else it.matchedUserName,
+                            matchedUserPhotoUrl = if (result.isMatch) item.profilePictureUrl else it.matchedUserPhotoUrl
+                        )
                     }
                 }
-                .onFailure { /* swipe errors are non-critical, feed already updated */ }
+                .onFailure { /* swipe errors are non-critical; card already removed */ }
         }
     }
 
@@ -351,8 +399,7 @@ class FeedViewModel(
     }
 
     companion object {
-        private const val PAGE_SIZE = 20
-        private const val PREFETCH_THRESHOLD = 5
+        const val LIKE_NOTE_MIN_LENGTH = 40
     }
 }
 

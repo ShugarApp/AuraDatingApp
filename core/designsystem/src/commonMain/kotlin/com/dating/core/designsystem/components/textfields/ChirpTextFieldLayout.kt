@@ -42,7 +42,7 @@ fun ChirpTextFieldLayout(
     }
 
     val isDark = isSystemInDarkTheme()
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(16.dp)
 
     val textFieldStyleModifier = Modifier
         .fillMaxWidth()

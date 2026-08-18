@@ -530,6 +530,11 @@ private fun MatchListCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     com.dating.home.presentation.components.IntentionBadge(intentionCode = match.intention)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    com.dating.home.presentation.matches.components.MatchTimer(
+                        expiresAt = match.expiresAt,
+                        state = match.state
+                    )
                 }
                 val location = listOfNotNull(match.city, match.country).joinToString(", ")
                 if (location.isNotEmpty()) {
@@ -550,6 +555,16 @@ private fun MatchListCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                }
+                match.likeNote?.takeIf { it.isNotBlank() }?.let { note ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "💬 $note",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -619,6 +634,11 @@ private fun LikeListCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     com.dating.home.presentation.components.IntentionBadge(intentionCode = match.intention)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    com.dating.home.presentation.matches.components.MatchTimer(
+                        expiresAt = match.expiresAt,
+                        state = match.state
+                    )
                 }
                 val location = listOfNotNull(match.city, match.country).joinToString(", ")
                 if (location.isNotEmpty()) {
@@ -639,6 +659,16 @@ private fun LikeListCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                }
+                match.likeNote?.takeIf { it.isNotBlank() }?.let { note ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "💬 $note",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             Spacer(modifier = Modifier.width(8.dp))

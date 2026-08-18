@@ -46,7 +46,8 @@ fun UserSerializable.toDomain(): User {
         idealDate = idealDate,
         interestedIn = interestedIn,
         lookingFor = lookingFor,
-        intention = intention
+        intention = intention,
+        publicFlagUntil = publicFlagUntil
     )
 }
 
@@ -77,7 +78,8 @@ fun User.toSerializable(): UserSerializable {
         idealDate = idealDate,
         interestedIn = interestedIn,
         lookingFor = lookingFor,
-        intention = intention
+        intention = intention,
+        publicFlagUntil = publicFlagUntil
     )
 }
 

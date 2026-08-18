@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,6 +44,7 @@ fun OtherUserMessage(
     onAcceptProposal: () -> Unit = {},
     onRejectProposal: () -> Unit = {},
     onEditProposal: () -> Unit = {},
+    onReportClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     highlightText: String? = null
 ) {
@@ -142,6 +144,12 @@ fun OtherUserMessage(
                         icon = Icons.Default.ContentCopy,
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         onClick = onCopyClick
+                    ),
+                    DropDownItem(
+                        title = "Reportar",
+                        icon = Icons.Default.Flag,
+                        contentColor = MaterialTheme.colorScheme.error,
+                        onClick = onReportClick
                     ),
                 )
             )

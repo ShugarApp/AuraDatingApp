@@ -77,6 +77,7 @@ fun NavGraphBuilder.homeGraph(
             BottomNavigationContainer(
                 initialSection = when (route.section) {
                     "matches" -> BottomNavSection.MATCHES
+                    "radar" -> BottomNavSection.RADAR
                     else -> BottomNavSection.FEED
                 },
                 swipedUserId = swipedUserId,
@@ -175,7 +176,16 @@ fun NavGraphBuilder.homeGraph(
                 },
                 onPrivacySettings = {
                     navController.navigate(HomeGraphRoutes.PrivacySettingsRoute)
+                },
+                onReputation = {
+                    navController.navigate(HomeGraphRoutes.ReputationRoute)
                 }
+            )
+        }
+
+        composable<HomeGraphRoutes.ReputationRoute> {
+            com.dating.home.presentation.profile.reputation.ReputationScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 

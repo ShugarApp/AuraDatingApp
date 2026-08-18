@@ -32,6 +32,7 @@ fun MessageListItemUi(
     onRejectProposal: (String) -> Unit = {},
     onCancelProposal: (String) -> Unit = {},
     onEditProposal: (String, String, DateProposalLocation) -> Unit = { _, _, _ -> },
+    onReportClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     highlightText: String? = null
 ) {
@@ -84,6 +85,7 @@ fun MessageListItemUi(
                             onEditProposal(messageUi.id, proposal.dateTime, proposal.location)
                         }
                     },
+                    onReportClick = { onReportClick(messageUi.id) },
                     highlightText = highlightText
                 )
             }

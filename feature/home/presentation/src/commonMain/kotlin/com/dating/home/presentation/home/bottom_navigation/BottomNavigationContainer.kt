@@ -349,6 +349,9 @@ fun BottomNavigationContainer(
                         onSosTrigger = { emergencyViewModel.onAction(EmergencyContactsAction.OnSosTrigger) }
                     )
                 }
+                BottomNavSection.RADAR -> {
+                    com.dating.home.presentation.radar.RadarRoot()
+                }
             }
 
             // Panic Button overlay — only visible on the Messages tab

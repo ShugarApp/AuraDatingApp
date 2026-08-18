@@ -75,6 +75,7 @@
     <string name="bottom_nav_matches">Matches</string>
     <string name="bottom_nav_messages">Messages</string>
     <string name="bottom_nav_dates">Dates</string>
+    <string name="bottom_nav_radar">Radar</string>
 
 
     <!-- Settings Screen -->

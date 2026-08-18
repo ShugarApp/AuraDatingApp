@@ -5,7 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ReportRequestDto(
     val reason: String,
-    val description: String? = null
+    val description: String? = null,
+    val messageId: String? = null,
+    val matchId: String? = null,
+    val matchIntention: String? = null,
+    val category: String? = null
 )
 
 @Serializable

@@ -51,6 +51,7 @@ fun MessageList(
     onRejectProposal: (String) -> Unit = {},
     onCancelProposal: (String) -> Unit = {},
     onEditProposal: (String, String, DateProposalLocation) -> Unit = { _, _, _ -> },
+    onReportMessageClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     highlightText: String? = null
 ) {
@@ -91,6 +92,7 @@ fun MessageList(
                     onRejectProposal = onRejectProposal,
                     onCancelProposal = onCancelProposal,
                     onEditProposal = onEditProposal,
+                    onReportClick = onReportMessageClick,
                     highlightText = highlightText,
                     modifier = Modifier
                         .fillMaxWidth()

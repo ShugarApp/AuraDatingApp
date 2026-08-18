@@ -29,6 +29,7 @@ data class ChatDetailState(
     val isDeletingMatch: Boolean = false,
     val showReportSheet: Boolean = false,
     val isSubmittingReport: Boolean = false,
+    val reportingMessageId: String? = null,
     val showBlockAfterReportDialog: Boolean = false,
     val isSearchMode: Boolean = false,
     val messageSearchQuery: String = "",
@@ -40,7 +41,12 @@ data class ChatDetailState(
     val editingProposalMessageId: String? = null,
     val editingProposalDateTime: String? = null,
     val editingProposalLocation: DateProposalLocation? = null,
-    val showLocationPicker: Boolean = false
+    val showLocationPicker: Boolean = false,
+    // Módulo 1/4 — info del match para el header del chat (badge intención + timer 48h).
+    val otherUserIntention: String? = null,
+    val matchId: String? = null,
+    val matchState: String = "ACTIVE",
+    val matchExpiresAt: String? = null
 )
 
 data class BannerState(

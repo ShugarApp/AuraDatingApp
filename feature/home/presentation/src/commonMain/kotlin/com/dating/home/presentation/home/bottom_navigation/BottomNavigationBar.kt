@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import aura.feature.home.presentation.generated.resources.Res
 import aura.feature.home.presentation.generated.resources.bottom_nav_dates
+import aura.feature.home.presentation.generated.resources.bottom_nav_radar
 import aura.feature.home.presentation.generated.resources.bottom_nav_feed
 import aura.feature.home.presentation.generated.resources.bottom_nav_matches
 import aura.feature.home.presentation.generated.resources.bottom_nav_messages
@@ -87,5 +88,6 @@ private fun bottomNavLabelText(section: BottomNavSection): String {
         BottomNavLabel.MESSAGES -> stringResource(Res.string.bottom_nav_messages)
         BottomNavLabel.DATES -> stringResource(Res.string.bottom_nav_dates)
         BottomNavLabel.PROFILE -> stringResource(Res.string.bottom_nav_profile)
+        BottomNavLabel.RADAR -> stringResource(Res.string.bottom_nav_radar)
     }
 }

@@ -7,6 +7,8 @@ import com.dating.core.data.logging.KermitLogger
 import com.dating.core.data.networking.HttpClientFactory
 import com.dating.core.data.preferences.DataStoreOnboardingPreferences
 import com.dating.core.data.preferences.DataStoreThemePreferences
+import com.dating.core.domain.analytics.AppAnalytics
+import com.dating.core.domain.analytics.NoOpAppAnalytics
 import com.dating.core.domain.auth.AuthService
 import com.dating.core.domain.auth.SessionStorage
 import com.dating.core.domain.discovery.DiscoveryPreferencesStorage
@@ -23,6 +25,8 @@ expect val platformCoreDataModule: Module
 val coreDataModule = module {
     includes(platformCoreDataModule)
     single<AppLogger> { KermitLogger }
+    // Analítica: NoOp por defecto; composeApp puede sobre-escribir con Firebase.
+    single<AppAnalytics> { NoOpAppAnalytics() }
     single { HttpClientFactory(get(), get()).create(get()) }
     singleOf(::KtorAuthService) bind AuthService::class
     singleOf(::DataStoreSessionStorage) bind SessionStorage::class

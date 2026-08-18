@@ -27,7 +27,14 @@ data class Match(
     val city: String?,
     val country: String?,
     val age: Int? = null,
-    val intention: String = "open"
+    val intention: String = "open",
+    // Módulo 4 — 48h lifecycle (null for likes).
+    val matchId: String? = null,
+    val state: String = "ACTIVE",
+    val expiresAt: String? = null,
+    val revivedOnce: Boolean = false,
+    // Módulo 3 — nota del like recibido (RN-3.4), solo en la pestaña de likes.
+    val likeNote: String? = null
 )
 
 sealed interface MatchesAction {
@@ -39,6 +46,8 @@ sealed interface MatchesAction {
     data class OnLikeUser(val userId: String) : MatchesAction
     data class OnDislikeUser(val userId: String) : MatchesAction
     data class OnDeleteMatchClick(val match: Match) : MatchesAction
+    // Módulo 4 — revive an expired match (RN-4.5).
+    data class OnReviveMatch(val matchId: String) : MatchesAction
     data object OnConfirmDeleteMatch : MatchesAction
     data object OnDismissDeleteMatchDialog : MatchesAction
     data object OnToggleViewMode : MatchesAction

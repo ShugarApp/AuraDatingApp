@@ -2,6 +2,7 @@ package com.dating.home.domain.user
 
 import com.dating.core.domain.auth.IntentionStatus
 import com.dating.core.domain.auth.ProfileVerification
+import com.dating.core.domain.auth.Reputation
 import com.dating.core.domain.auth.User
 import com.dating.core.domain.util.DataError
 import com.dating.core.domain.util.EmptyResult
@@ -37,6 +38,8 @@ interface UserService {
     // Módulo 1 — declared intention
     suspend fun getIntentionStatus(): Result<IntentionStatus, DataError.Remote>
     suspend fun updateIntention(intention: String): Result<User, DataError.Remote>
+    // Módulo 2 — my reputation
+    suspend fun getReputation(): Result<Reputation, DataError.Remote>
     suspend fun uploadSelfie(imageBytes: ByteArray, mimeType: String): Result<String, DataError.Remote>
     suspend fun submitVerification(selfieUrl: String): Result<ProfileVerification, DataError.Remote>
     suspend fun getVerificationStatus(): Result<ProfileVerification?, DataError.Remote>
