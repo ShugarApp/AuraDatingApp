@@ -26,7 +26,8 @@ data class Match(
     val photos: List<String> = emptyList(),
     val city: String?,
     val country: String?,
-    val age: Int? = null
+    val age: Int? = null,
+    val intention: String = "open"
 )
 
 sealed interface MatchesAction {

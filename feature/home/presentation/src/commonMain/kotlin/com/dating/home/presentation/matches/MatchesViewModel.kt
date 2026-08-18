@@ -114,7 +114,8 @@ class MatchesViewModel(
         photos = photos,
         city = city,
         country = country,
-        age = birthDate?.let { calculateAge(it) }
+        age = birthDate?.let { calculateAge(it) },
+        intention = intention
     )
 
     private fun confirmDeleteMatch() {

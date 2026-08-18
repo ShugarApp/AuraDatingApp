@@ -268,7 +268,8 @@ class FeedViewModel(
                                 city = user.city,
                                 country = user.country,
                                 age = calculateAge(user.birthDate),
-                                isVerified = user.verificationStatus == VerificationStatus.VERIFIED
+                                isVerified = user.verificationStatus == VerificationStatus.VERIFIED,
+                                intention = user.intention
                             )
                         }
                     _state.update {

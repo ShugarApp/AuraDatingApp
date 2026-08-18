@@ -545,6 +545,10 @@ private fun ProfileDetailContent(
                                 )
                             }
                         }
+                        Spacer(Modifier.width(8.dp))
+                        com.dating.home.presentation.components.IntentionBadge(
+                            intentionCode = user.intention
+                        )
                     }
                     if (location.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

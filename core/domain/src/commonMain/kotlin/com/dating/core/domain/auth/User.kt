@@ -33,7 +33,9 @@ data class User(
     val interests: List<String> = emptyList(),
     val idealDate: String? = null,
     val interestedIn: String? = null,
-    val lookingFor: String? = null
+    val lookingFor: String? = null,
+    // Canonical declared intention (Módulo 1): "serious" | "casual" | "friendship" | "open".
+    val intention: String = "open"
 ) {
     val profilePictureUrl: String? get() = photos.firstOrNull()
 }

@@ -35,7 +35,8 @@ data class FeedItem(
     val city: String?,
     val country: String?,
     val age: Int? = null,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    val intention: String = "open"
 )
 
 sealed interface FeedAction {

@@ -108,6 +108,7 @@ import com.dating.core.designsystem.components.header.MainTopAppBar
 import com.dating.core.domain.discovery.Gender
 import com.dating.home.presentation.home.swipe.components.MatchCelebrationOverlay
 import com.dating.home.presentation.home.swipe.components.RadarSearchAnimation
+import com.dating.home.presentation.components.IntentionBadge
 import com.dating.home.presentation.home.swipe.components.SwipeableCard
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.painterResource
@@ -439,6 +440,7 @@ fun FeedCardContent(
                         modifier = Modifier.size(22.dp)
                     )
                 }
+                IntentionBadge(intentionCode = feedItem.intention)
             }
             val location = listOfNotNull(feedItem.city, feedItem.country).joinToString(", ")
             if (location.isNotEmpty()) {
