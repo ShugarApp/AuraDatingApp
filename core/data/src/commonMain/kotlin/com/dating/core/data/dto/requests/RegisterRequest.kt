@@ -11,5 +11,7 @@ data class RegisterRequest(
     val gender: String? = null,
     val interestedIn: String? = null,
     val lookingFor: String? = null,
-    val idealDate: String? = null
+    val idealDate: String? = null,
+    // RN-2.5 — identificador de dispositivo para el chequeo de baneo en el registro.
+    val deviceId: String? = null
 )

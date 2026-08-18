@@ -270,6 +270,9 @@
     <string name="edit_profile_interested_in_women">Women</string>
     <string name="edit_profile_interested_in_everyone">Everyone</string>
     <string name="edit_profile_looking_for">Looking For</string>
+    <string name="edit_profile_intention_cooldown">You can change what you\'re looking for again on %1$s.</string>
+    <string name="edit_profile_intention_cooldown_no_date">There\'s a 14-day wait between changes to what you\'re looking for.</string>
+    <string name="edit_profile_intention_cross_bucket">This change switches your intention type, which is locked during the cooldown — saving won\'t apply it yet.</string>
     <string name="edit_profile_looking_for_long_term">Long term</string>
     <string name="edit_profile_looking_for_short_term">Short term</string>
     <string name="edit_profile_looking_for_casual">Casual dates</string>
@@ -664,4 +667,7 @@
     <string name="safety_check_report">Report something</string>
     <string name="share_plan_button">Share plan</string>
     <string name="share_plan_text">My Aura date plan 🗓️\n\nWhen: %1$s\nWhere: %2$s\n%3$s\n\nIf you don\'t hear from me afterward, please check in on me.</string>
+    <string name="system_match_incompatible">This match\'s intentions no longer align. You can keep chatting or close the match.</string>
+    <string name="system_continue">Keep chatting</string>
+    <string name="system_close_match">Close match</string>
 </resources>

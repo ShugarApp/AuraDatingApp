@@ -61,6 +61,7 @@ fun MediaMessageContent(
         MessageType.TEXT -> Unit
         MessageType.DATE_PROPOSAL -> Unit // Handled separately via DateProposalBubbleContent
         MessageType.LOCATION -> Unit // Handled separately via LocationBubbleContent
+        MessageType.SYSTEM -> Unit // Rendered by SystemMessageBubble, not as a media bubble
     }
 }
 

@@ -19,6 +19,14 @@ enum class Intention(val code: String, val displayName: String) {
         fun fromCode(value: String?): Intention =
             entries.find { it.code.equals(value, ignoreCase = true) || it.name.equals(value, ignoreCase = true) }
                 ?: OPEN
+
+        /** Bucket estructural de un valor "Looking For" (mismo mapeo que el backend, RN-1.3). */
+        fun fromLookingFor(lookingFor: String?): Intention = when (lookingFor?.uppercase()) {
+            "LONG_TERM", "SHORT_TERM" -> SERIOUS
+            "CASUAL_DATES", "HOOKUP" -> CASUAL
+            "FRIENDS" -> FRIENDSHIP
+            else -> OPEN
+        }
     }
 }
 

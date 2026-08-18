@@ -589,6 +589,9 @@ fun ChatDetailScreen(
                                 onReportMessageClick = { messageId ->
                                     onAction(ChatDetailAction.OnReportMessageClick(messageId))
                                 },
+                                onCloseMatch = {
+                                    onAction(ChatDetailAction.OnDeleteMatchClick)
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f)

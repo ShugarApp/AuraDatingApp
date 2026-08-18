@@ -33,6 +33,7 @@ fun MessageListItemUi(
     onCancelProposal: (String) -> Unit = {},
     onEditProposal: (String, String, DateProposalLocation) -> Unit = { _, _, _ -> },
     onReportClick: (String) -> Unit = {},
+    onCloseMatch: () -> Unit = {},
     modifier: Modifier = Modifier,
     highlightText: String? = null
 ) {
@@ -44,6 +45,12 @@ fun MessageListItemUi(
                 DateSeparatorUi(
                     date = messageUi.date.asString(),
                     modifier = Modifier.fillMaxWidth()
+                )
+            }
+            is MessageUi.SystemMessage -> {
+                SystemMessageBubble(
+                    message = messageUi,
+                    onCloseMatch = onCloseMatch
                 )
             }
             is MessageUi.LocalUserMessage -> {

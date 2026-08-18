@@ -81,6 +81,18 @@ class EditProfileViewModel(
                         )
                     }
                 }
+
+            // RN-1.3 — estado del cooldown de intención para avisar antes de guardar.
+            userService.getIntentionStatus()
+                .onSuccess { status ->
+                    _state.update {
+                        it.copy(
+                            currentIntentionCode = status.intention.code,
+                            intentionCanChange = status.canChange,
+                            intentionNextAvailableAt = status.nextAvailableAt
+                        )
+                    }
+                }
         }
     }
 
