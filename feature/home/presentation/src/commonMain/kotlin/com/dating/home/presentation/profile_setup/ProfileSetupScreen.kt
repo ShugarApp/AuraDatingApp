@@ -205,9 +205,14 @@ fun ProfileSetupFastScreen(
                 }
                 LinearProgressIndicator(
                     progress = { (currentStep.index + 1).toFloat() / currentStep.total },
-                    modifier = Modifier.fillMaxWidth().height(3.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(6.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    gapSize = 0.dp
                 )
             }
         },
@@ -690,14 +695,10 @@ private fun SetupSectionLabel(text: String) {
 
 @Composable
 private fun SetupChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label) },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-            selectedLabelColor = MaterialTheme.colorScheme.primary
-        )
+    ChirpChip(
+        text = label,
+        isSelected = selected,
+        onClick = onClick
     )
 }
 
