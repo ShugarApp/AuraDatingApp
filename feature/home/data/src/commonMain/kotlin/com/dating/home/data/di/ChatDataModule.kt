@@ -5,6 +5,8 @@ import com.dating.home.data.chat.KtorChatService
 import com.dating.home.data.chat.OfflineFirstChatRepository
 import com.dating.home.data.chat.WebSocketChatConnectionClient
 import com.dating.home.data.matching.KtorMatchingService
+import com.dating.home.data.radar.KtorRadarService
+import com.dating.home.domain.radar.RadarService
 import com.dating.home.data.message.KtorChatMediaService
 import com.dating.home.data.message.KtorChatMessageService
 import com.dating.home.data.message.OfflineFirstMessageRepository
@@ -65,6 +67,7 @@ val homeDataModule = module {
     singleOf(::KtorDeviceTokenService) bind DeviceTokenService::class
     singleOf(::OfflineFirstChatParticipantRepository) bind ChatParticipantRepository::class
     singleOf(::KtorMatchingService) bind MatchingService::class
+    singleOf(::KtorRadarService) bind RadarService::class
     singleOf(::KtorUserService) bind UserService::class
     singleOf(::KtorBlockService) bind BlockService::class
     singleOf(::KtorReportService) bind ReportService::class

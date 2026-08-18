@@ -308,7 +308,8 @@ fun ChatDetailRoot(
             },
             initialDateTime = state.editingProposalDateTime,
             initialLocation = state.editingProposalLocation,
-            isEditing = state.editingProposalMessageId != null
+            isEditing = state.editingProposalMessageId != null,
+            suggestedVenues = state.suggestedVenues
         )
     }
 
@@ -482,6 +483,9 @@ fun ChatDetailScreen(
                         ) {
                             ChatDetailHeader(
                                 chatUi = state.chatUi,
+                                intention = state.otherUserIntention,
+                                matchExpiresAt = state.matchExpiresAt,
+                                matchState = state.matchState,
                                 isChatOptionsDropDownOpen = state.isChatOptionsOpen,
                                 isSearchMode = state.isSearchMode,
                                 messageSearchQuery = state.messageSearchQuery,
@@ -526,6 +530,9 @@ fun ChatDetailScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
+                        com.dating.home.presentation.chat.chat_detail.components.ChatRulesBanner(
+                            intentionCode = state.otherUserIntention
+                        )
                         if (state.isLoading && state.messages.isEmpty()) {
                             Box(
                                 modifier = Modifier
@@ -578,6 +585,12 @@ fun ChatDetailScreen(
                                 },
                                 onEditProposal = { messageId, dateTime, location: DateProposalLocation ->
                                     onAction(ChatDetailAction.OnEditProposal(messageId, dateTime, location))
+                                },
+                                onReportMessageClick = { messageId ->
+                                    onAction(ChatDetailAction.OnReportMessageClick(messageId))
+                                },
+                                onCloseMatch = {
+                                    onAction(ChatDetailAction.OnDeleteMatchClick)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

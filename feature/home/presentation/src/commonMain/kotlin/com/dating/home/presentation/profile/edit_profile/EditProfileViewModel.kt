@@ -81,6 +81,18 @@ class EditProfileViewModel(
                         )
                     }
                 }
+
+            // RN-1.3 — estado del cooldown de intención para avisar antes de guardar.
+            userService.getIntentionStatus()
+                .onSuccess { status ->
+                    _state.update {
+                        it.copy(
+                            currentIntentionCode = status.intention.code,
+                            intentionCanChange = status.canChange,
+                            intentionNextAvailableAt = status.nextAvailableAt
+                        )
+                    }
+                }
         }
     }
 
@@ -150,7 +162,13 @@ class EditProfileViewModel(
                     sessionStorage.set(info.copy(user = user))
                 }
             }.onFailure { error ->
-                _state.update { it.copy(isSavingProfile = false, saveError = error.toUiText()) }
+                // Módulo 1 (RN-1.3): 409 al cambiar la intención antes de los 14 días de cooldown.
+                val message = if (error == com.dating.core.domain.util.DataError.Remote.CONFLICT) {
+                    UiText.DynamicString("No puedes cambiar lo que buscas todavía. Hay un periodo de espera de 14 días entre cambios.")
+                } else {
+                    error.toUiText()
+                }
+                _state.update { it.copy(isSavingProfile = false, saveError = message) }
             }
         }
     }

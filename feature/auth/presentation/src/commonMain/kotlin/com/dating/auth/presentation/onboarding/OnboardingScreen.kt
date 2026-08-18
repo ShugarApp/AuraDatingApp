@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -96,128 +98,78 @@ fun OnboardingScreen(
     onGoogleSignInClick: () -> Unit = {},
     isGoogleLoading: Boolean = false
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        AuthSnackbarScaffold {
+    AuthSnackbarScaffold {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            AppBrandLogo(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Hero
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(340.dp)
+                    .clip(RoundedCornerShape(28.dp))
                     .background(
-                        Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0.0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                0.4f to Color.Transparent,
-                                1.0f to MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
                             )
                         )
-                    )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    OnboardingHeader()
-                    Spacer(modifier = Modifier.weight(1f))
-                    OnboardingActions(
-                        onLoginClick = onLoginClick,
-                        onCreateAccountClick = onCreateAccountClick,
-                        onGoogleSignInClick = onGoogleSignInClick,
-                        isGoogleLoading = isGoogleLoading
-                    )
-                }
+                AppBrandLogo(modifier = Modifier.size(96.dp))
             }
+
+            Spacer(modifier = Modifier.height(28.dp))
+            Text(
+                text = stringResource(Res.string.welcome_to_chirp),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(Res.string.onboarding_body),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.extended.textSecondary,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+            ChirpButton(
+                text = stringResource(Res.string.create_account),
+                onClick = onCreateAccountClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            GoogleSignInButton(
+                onClick = onGoogleSignInClick,
+                isLoading = isGoogleLoading,
+                enabled = !isGoogleLoading,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ChirpButton(
+                text = stringResource(Res.string.login),
+                onClick = onLoginClick,
+                style = AppButtonStyle.TEXT,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            OnboardingTermsText()
+            Spacer(modifier = Modifier.height(32.dp))
         }
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsTopHeight(WindowInsets.statusBars)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-        )
-    }
-}
-
-@Composable
-private fun OnboardingHeader() {
-    AppBrandLogo(modifier = Modifier.size(96.dp))
-
-    Spacer(modifier = Modifier.height(32.dp))
-
-    Text(
-        text = stringResource(Res.string.welcome_to_chirp),
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        textAlign = TextAlign.Center
-    )
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    Text(
-        text = stringResource(Res.string.onboarding_body),
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        textAlign = TextAlign.Center
-    )
-}
-
-@Composable
-private fun OnboardingActions(
-    onLoginClick: () -> Unit,
-    onCreateAccountClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit,
-    isGoogleLoading: Boolean
-) {
-    GoogleSignInButton(
-        onClick = onGoogleSignInClick,
-        isLoading = isGoogleLoading,
-        enabled = !isGoogleLoading,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    OnboardingDivider()
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    ChirpButton(
-        text = stringResource(Res.string.login),
-        onClick = onLoginClick,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    ChirpButton(
-        text = stringResource(Res.string.create_account),
-        onClick = onCreateAccountClick,
-        style = AppButtonStyle.TEXT,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    OnboardingTermsText()
-
-    Spacer(modifier = Modifier.height(64.dp))
-}
-
-@Composable
-private fun OnboardingDivider() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        HorizontalDivider(modifier = Modifier.weight(1f))
-        Text(
-            text = stringResource(Res.string.onboarding_or),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.extended.textSecondary,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        HorizontalDivider(modifier = Modifier.weight(1f))
     }
 }
 

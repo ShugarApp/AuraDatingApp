@@ -28,6 +28,9 @@ sealed interface HomeGraphRoutes {
     data object ChangePasswordRoute : HomeGraphRoutes
 
     @Serializable
+    data object ReputationRoute : HomeGraphRoutes
+
+    @Serializable
     data object SubscriptionRoute : HomeGraphRoutes
 
     @Serializable

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -35,7 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import aura.feature.home.presentation.generated.resources.Res
+import aura.feature.home.presentation.generated.resources.share_plan_button
+import aura.feature.home.presentation.generated.resources.share_plan_text
+import com.dating.home.domain.models.DateProposalStatus
 import com.dating.home.presentation.chat.model.DateProposalUi
+import com.dating.home.presentation.chat.share.rememberPlanShareLauncher
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DateProposalDetailSheet(
@@ -47,6 +54,7 @@ fun DateProposalDetailSheet(
     onEdit: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
+    val sharePlan = rememberPlanShareLauncher()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -157,6 +165,40 @@ fun DateProposalDetailSheet(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Open in Maps", style = MaterialTheme.typography.labelLarge)
+            }
+
+            // Módulo 4 (RN-4.7) — compartir el plan con un contacto de confianza vía share sheet
+            // nativo. Solo cuando el plan está confirmado; el texto no expone teléfono ni apellido.
+            if (proposal.status == DateProposalStatus.ACCEPTED) {
+                val place = if (
+                    proposal.location.address.isNotBlank() &&
+                    proposal.location.address != proposal.location.name
+                ) {
+                    "${proposal.location.name}, ${proposal.location.address}"
+                } else {
+                    proposal.location.name
+                }
+                val planText = stringResource(
+                    Res.string.share_plan_text,
+                    formatProposalDateTime(proposal.dateTime),
+                    place,
+                    buildMapsUrl(proposal)
+                )
+                OutlinedButton(
+                    onClick = { sharePlan(planText) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.share_plan_button),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
 
             // Action buttons

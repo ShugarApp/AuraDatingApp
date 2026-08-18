@@ -6,5 +6,6 @@ enum class MessageType {
     GIF,
     AUDIO,
     DATE_PROPOSAL,
-    LOCATION
+    LOCATION,
+    SYSTEM
 }

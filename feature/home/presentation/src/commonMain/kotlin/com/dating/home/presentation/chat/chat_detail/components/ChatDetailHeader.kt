@@ -85,6 +85,9 @@ fun ChatDetailHeader(
     onSearchQueryChanged: (String) -> Unit,
     onNextSearchResult: () -> Unit,
     onPreviousSearchResult: () -> Unit,
+    intention: String? = null,
+    matchExpiresAt: String? = null,
+    matchState: String = "ACTIVE",
     modifier: Modifier = Modifier
 ) {
     AnimatedContent(
@@ -138,6 +141,17 @@ fun ChatDetailHeader(
                 } else {
                     Spacer(modifier = Modifier.weight(1f))
                 }
+
+                // Módulo 1/4 — intención del match (RN-1.5) + timer 48h (RN-4.1) en el header.
+                if (intention != null) {
+                    com.dating.home.presentation.components.IntentionBadge(intentionCode = intention)
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                com.dating.home.presentation.matches.components.MatchTimer(
+                    expiresAt = matchExpiresAt,
+                    state = matchState
+                )
+                Spacer(modifier = Modifier.width(4.dp))
 
                 IconButton(onClick = onToggleSearch) {
                     Icon(

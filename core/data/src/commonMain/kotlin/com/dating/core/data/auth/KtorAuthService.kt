@@ -80,7 +80,9 @@ class KtorAuthService(private val httpClient: HttpClient) : AuthService {
                 gender = gender,
                 interestedIn = interestedIn,
                 lookingFor = lookingFor,
-                idealDate = idealDate
+                idealDate = idealDate,
+                // RN-2.5 — adjuntamos el device id en la capa de datos (sin tocar el dominio/VM).
+                deviceId = com.dating.core.data.util.PlatformUtils.getDeviceId()
             )
         )
     }

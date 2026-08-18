@@ -123,7 +123,8 @@ fun ChirpButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(percent = 50),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 10.dp),
         colors = colors,
         border = border
     ) {
@@ -139,7 +140,7 @@ fun ChirpButton(
                         alpha = if (isLoading) 1f else 0f
                     ),
                 strokeWidth = 1.5.dp,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(

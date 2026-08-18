@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -111,6 +112,7 @@ fun SettingsScreen(
     onLegalAccount: () -> Unit = {},
     onSecuritySettings: () -> Unit = {},
     onPrivacySettings: () -> Unit = {},
+    onReputation: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel()
 ) {
@@ -228,6 +230,11 @@ fun SettingsScreen(
                     icon = Icons.Default.Security,
                     title = stringResource(Res.string.settings_security),
                     onClick = onSecuritySettings
+                )
+                AccessCardItem(
+                    icon = Icons.Default.Shield,
+                    title = "Mi reputación",
+                    onClick = onReputation
                 )
                 AccessCardItem(
                     icon = if (state.isAccountPaused) Icons.Default.PlayCircle else Icons.Default.PauseCircle,

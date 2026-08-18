@@ -84,6 +84,9 @@ import aura.feature.home.presentation.generated.resources.delete_profile_picture
 import aura.feature.home.presentation.generated.resources.delete_profile_picture_desc
 import aura.feature.home.presentation.generated.resources.edit_profile_about_me
 import aura.feature.home.presentation.generated.resources.edit_profile_about_me_placeholder
+import aura.feature.home.presentation.generated.resources.edit_profile_intention_cooldown
+import aura.feature.home.presentation.generated.resources.edit_profile_intention_cooldown_no_date
+import aura.feature.home.presentation.generated.resources.edit_profile_intention_cross_bucket
 import aura.feature.home.presentation.generated.resources.edit_profile_age_format
 import aura.feature.home.presentation.generated.resources.edit_profile_bio_counter
 import aura.feature.home.presentation.generated.resources.edit_profile_change_photo
@@ -545,6 +548,25 @@ fun EditProfileScreen(
                             }
                         )
                     }
+                }
+
+                // RN-1.3 — aviso de cooldown de intención (14 días entre cambios de bucket).
+                if (state.intentionChangeBlocked) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(Res.string.edit_profile_intention_cross_bucket),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else if (!state.intentionCanChange) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = state.intentionNextAvailableAt?.take(10)?.let {
+                            stringResource(Res.string.edit_profile_intention_cooldown, it)
+                        } ?: stringResource(Res.string.edit_profile_intention_cooldown_no_date),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
 
                 Spacer(Modifier.height(20.dp))

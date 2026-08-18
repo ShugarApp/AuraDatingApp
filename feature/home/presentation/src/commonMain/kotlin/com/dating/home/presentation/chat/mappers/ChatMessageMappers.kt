@@ -48,6 +48,11 @@ private data class LocationContentDtoMapper(
     val address: String? = null
 )
 
+@Serializable
+private data class SystemContentDto(
+    val kind: String
+)
+
 private val proposalJson = Json { ignoreUnknownKeys = true }
 
 fun List<MessageWithSender>.toUiList(
@@ -73,6 +78,21 @@ fun MessageWithSender.toUi(
 ): MessageUi {
     val isFromLocalUser = this.sender.userId == localUserId
     val reactions = reactionsMap[message.id] ?: emptyList()
+
+    // RN-1.4 — mensaje de sistema (renderizado por tipo, no por remitente).
+    if (message.messageType == MessageType.SYSTEM) {
+        val kind = try {
+            proposalJson.decodeFromString<SystemContentDto>(message.content).kind
+        } catch (_: Exception) {
+            "UNKNOWN"
+        }
+        return MessageUi.SystemMessage(
+            id = message.id,
+            kind = kind,
+            formattedSentTime = DateUtils.formatMessageTime(instant = message.createdAt)
+        )
+    }
+
     val dateProposal = if (message.messageType == MessageType.DATE_PROPOSAL) {
         parseDateProposal(message.id, message.content, isFromLocalUser)
     } else null

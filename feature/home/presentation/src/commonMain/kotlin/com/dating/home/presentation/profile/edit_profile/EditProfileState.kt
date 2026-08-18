@@ -45,8 +45,22 @@ data class EditProfileState(
     val lookingFor: String? = null,
     val idealDate: String? = null,
 
+    // RN-1.3 — cooldown de intención (14 días). currentIntentionCode = bucket actual del servidor.
+    val currentIntentionCode: String? = null,
+    val intentionCanChange: Boolean = true,
+    val intentionNextAvailableAt: String? = null,
+
     // 6 photo slots; null = empty
     val photos: List<String?> = List(6) { null }
 ) {
     val showDeleteConfirmationDialog: Boolean get() = pendingDeleteSlot != null
+
+    /**
+     * RN-1.3 — el "Looking For" seleccionado cruza a otro bucket de intención mientras el cooldown
+     * está activo → el guardado devolverá 409. Sirve para avisar antes de intentar guardar.
+     */
+    val intentionChangeBlocked: Boolean
+        get() = !intentionCanChange &&
+            currentIntentionCode != null &&
+            com.dating.core.domain.auth.Intention.fromLookingFor(lookingFor).code != currentIntentionCode
 }

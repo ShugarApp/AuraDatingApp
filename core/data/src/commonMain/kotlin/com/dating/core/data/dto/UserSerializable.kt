@@ -31,5 +31,7 @@ data class UserSerializable(
     val profileCompletion: Int? = null,
     val idealDate: String? = null,
     val interestedIn: String? = null,
-    val lookingFor: String? = null
+    val lookingFor: String? = null,
+    val intention: String = "open",
+    val publicFlagUntil: String? = null
 )

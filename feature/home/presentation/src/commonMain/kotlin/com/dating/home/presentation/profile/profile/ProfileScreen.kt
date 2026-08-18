@@ -478,8 +478,8 @@ fun ProfileDashboardCard(
     }
 }
 
-private val SosRed = Color(0xFFE53935)
-private val SosPulseRing = Color(0xFFEF9A9A)
+private val SosRed = Color(0xFFF43F5E)
+private val SosPulseRing = Color(0xFFFDA4B4)
 
 @Composable
 internal fun SosActionButton(

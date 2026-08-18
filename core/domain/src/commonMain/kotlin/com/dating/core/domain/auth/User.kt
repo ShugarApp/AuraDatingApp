@@ -33,7 +33,11 @@ data class User(
     val interests: List<String> = emptyList(),
     val idealDate: String? = null,
     val interestedIn: String? = null,
-    val lookingFor: String? = null
+    val lookingFor: String? = null,
+    // Canonical declared intention (Módulo 1): "serious" | "casual" | "friendship" | "open".
+    val intention: String = "open",
+    // Módulo 2 — public "reported" flag window end (ISO-8601). Active if in the future (RN-2.4).
+    val publicFlagUntil: String? = null
 ) {
     val profilePictureUrl: String? get() = photos.firstOrNull()
 }

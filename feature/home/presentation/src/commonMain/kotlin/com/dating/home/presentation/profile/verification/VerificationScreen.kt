@@ -238,8 +238,8 @@ private fun StatusStepContent(
                 VerificationStatusBanner(
                     icon = Icons.Default.CheckCircle,
                     text = "Your profile is verified",
-                    tint = Color(0xFF4CAF50),
-                    background = Color(0xFF4CAF50).copy(alpha = 0.12f)
+                    tint = Color(0xFF22C55E),
+                    background = Color(0xFF22C55E).copy(alpha = 0.12f)
                 )
                 Spacer(Modifier.height(16.dp))
             }
@@ -247,8 +247,8 @@ private fun StatusStepContent(
                 VerificationStatusBanner(
                     icon = Icons.Default.HourglassEmpty,
                     text = "Verification in progress...",
-                    tint = Color(0xFFFFA000),
-                    background = Color(0xFFFFA000).copy(alpha = 0.12f)
+                    tint = Color(0xFFF59E0B),
+                    background = Color(0xFFF59E0B).copy(alpha = 0.12f)
                 )
                 Spacer(Modifier.height(16.dp))
             }

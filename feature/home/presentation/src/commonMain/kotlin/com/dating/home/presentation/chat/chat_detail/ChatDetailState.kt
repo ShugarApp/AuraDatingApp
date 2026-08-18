@@ -29,6 +29,7 @@ data class ChatDetailState(
     val isDeletingMatch: Boolean = false,
     val showReportSheet: Boolean = false,
     val isSubmittingReport: Boolean = false,
+    val reportingMessageId: String? = null,
     val showBlockAfterReportDialog: Boolean = false,
     val isSearchMode: Boolean = false,
     val messageSearchQuery: String = "",
@@ -40,7 +41,14 @@ data class ChatDetailState(
     val editingProposalMessageId: String? = null,
     val editingProposalDateTime: String? = null,
     val editingProposalLocation: DateProposalLocation? = null,
-    val showLocationPicker: Boolean = false
+    // Módulo 4 (RN-4.9) — venues curados sugeridos en el sheet de propuesta (públicos primero).
+    val suggestedVenues: List<com.dating.home.domain.matching.Venue> = emptyList(),
+    val showLocationPicker: Boolean = false,
+    // Módulo 1/4 — info del match para el header del chat (badge intención + timer 48h).
+    val otherUserIntention: String? = null,
+    val matchId: String? = null,
+    val matchState: String = "ACTIVE",
+    val matchExpiresAt: String? = null
 )
 
 data class BannerState(

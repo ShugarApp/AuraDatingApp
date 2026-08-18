@@ -7,14 +7,16 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Radar
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class BottomNavLabel {
-    FEED, MATCHES, MESSAGES, DATES, PROFILE
+    FEED, MATCHES, MESSAGES, DATES, PROFILE, RADAR
 }
 
 enum class BottomNavSection(
@@ -46,5 +48,10 @@ enum class BottomNavSection(
         labelKey = BottomNavLabel.PROFILE,
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
+    ),
+    RADAR(
+        labelKey = BottomNavLabel.RADAR,
+        selectedIcon = Icons.Filled.Radar,
+        unselectedIcon = Icons.Outlined.Radar
     )
 }

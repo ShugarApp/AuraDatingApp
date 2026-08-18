@@ -5,10 +5,14 @@ import com.dating.core.data.dto.UserSerializable
 import com.dating.core.data.mappers.toDomain
 import com.dating.core.data.networking.delete
 import com.dating.core.data.networking.get
+import com.dating.core.data.networking.patch
 import com.dating.core.data.networking.post
 import com.dating.core.data.networking.put
 import com.dating.core.data.networking.safeCall
+import com.dating.core.domain.auth.Intention
+import com.dating.core.domain.auth.IntentionStatus
 import com.dating.core.domain.auth.ProfileVerification
+import com.dating.core.domain.auth.Reputation
 import com.dating.core.domain.auth.User
 import com.dating.core.domain.image.ImageCompressor
 import com.dating.core.domain.logging.AppLogger
@@ -22,8 +26,11 @@ import com.dating.home.data.dto.request.SubmitVerificationRequest
 import com.dating.home.data.dto.request.IncognitoModeRequest
 import com.dating.home.data.dto.request.PauseAccountRequest
 import com.dating.home.data.dto.request.ReorderPhotosRequest
+import com.dating.home.data.dto.request.UpdateIntentionRequest
 import com.dating.home.data.dto.request.UpdateProfileRequest
+import com.dating.home.data.dto.response.IntentionStatusResponse
 import com.dating.home.data.dto.response.ProfilePictureUploadUrlsResponse
+import com.dating.home.data.dto.response.ReputationResponse
 import com.dating.home.domain.user.UserService
 import io.ktor.client.HttpClient
 import io.ktor.client.request.put
@@ -40,6 +47,38 @@ class KtorUserService(
         return httpClient.get<UserSerializable>(
             route = "/users/profile"
         ).map { it.toDomain() }
+    }
+
+    override suspend fun getIntentionStatus(): Result<IntentionStatus, DataError.Remote> {
+        return httpClient.get<IntentionStatusResponse>(
+            route = "/users/me/intention/status"
+        ).map {
+            IntentionStatus(
+                intention = Intention.fromCode(it.intention),
+                canChange = it.canChange,
+                nextAvailableAt = it.nextAvailableAt
+            )
+        }
+    }
+
+    override suspend fun updateIntention(intention: String): Result<User, DataError.Remote> {
+        return httpClient.patch<UpdateIntentionRequest, UserSerializable>(
+            route = "/users/me/intention",
+            body = UpdateIntentionRequest(intention = intention)
+        ).map { it.toDomain() }
+    }
+
+    override suspend fun getReputation(): Result<Reputation, DataError.Remote> {
+        return httpClient.get<ReputationResponse>(
+            route = "/users/me/reputation"
+        ).map {
+            Reputation(
+                status = it.status,
+                strikesCount = it.strikesCount,
+                reputationScore = it.reputationScore,
+                publicFlagUntil = it.publicFlagUntil
+            )
+        }
     }
 
     override suspend fun updateProfile(

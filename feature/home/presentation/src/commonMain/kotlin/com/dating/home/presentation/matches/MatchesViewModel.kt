@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 
 class MatchesViewModel(
     private val matchingService: MatchingService,
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val analytics: com.dating.core.domain.analytics.AppAnalytics
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MatchesState())
@@ -57,6 +58,8 @@ class MatchesViewModel(
             is MatchesAction.OnDeleteMatchClick -> {
                 _state.update { it.copy(showDeleteMatchDialog = true, matchToDelete = action.match) }
             }
+            is MatchesAction.OnReviveMatch -> reviveMatch(action.matchId)
+            is MatchesAction.OnAnswerSafetyCheck -> answerSafetyCheck(action.id, action.response)
             MatchesAction.OnConfirmDeleteMatch -> confirmDeleteMatch()
             MatchesAction.OnDismissDeleteMatchDialog -> {
                 _state.update { it.copy(showDeleteMatchDialog = false, matchToDelete = null) }
@@ -77,10 +80,10 @@ class MatchesViewModel(
 
             launch {
                 matchingService.getMatches()
-                    .onSuccess { users ->
+                    .onSuccess { matches ->
                         _state.update {
                             it.copy(
-                                matches = users.map { user -> user.toMatch() }
+                                matches = matches.map { m -> m.toMatch() }
                             )
                         }
                     }
@@ -90,16 +93,23 @@ class MatchesViewModel(
             }
 
             launch {
-                matchingService.getLikes()
-                    .onSuccess { users ->
+                matchingService.getLikesWithNotes()
+                    .onSuccess { received ->
                         _state.update {
                             it.copy(
-                                likes = users.map { user -> user.toMatch() }
+                                likes = received.map { r -> r.toMatch() }
                             )
                         }
                     }
                     .onFailure { error ->
                         _state.update { it.copy(error = error.toUiText()) }
+                    }
+            }
+
+            launch {
+                matchingService.getPendingSafetyChecks()
+                    .onSuccess { pending ->
+                        _state.update { it.copy(pendingSafetyChecks = pending) }
                     }
             }
         }.invokeOnCompletion {
@@ -114,8 +124,68 @@ class MatchesViewModel(
         photos = photos,
         city = city,
         country = country,
-        age = birthDate?.let { calculateAge(it) }
+        age = birthDate?.let { calculateAge(it) },
+        intention = intention
     )
+
+    private fun com.dating.home.domain.matching.ReceivedLike.toMatch(): Match {
+        val u = user
+        return Match(
+            id = u.id,
+            username = u.username,
+            profilePictureUrl = u.profilePictureUrl,
+            photos = u.photos,
+            city = u.city,
+            country = u.country,
+            age = u.birthDate?.let { calculateAge(it) },
+            intention = u.intention,
+            likeNote = likeNote
+        )
+    }
+
+    private fun com.dating.home.domain.matching.MatchInfo.toMatch(): Match {
+        val u = user
+        return Match(
+            id = u.id,
+            username = u.username,
+            profilePictureUrl = u.profilePictureUrl,
+            photos = u.photos,
+            city = u.city,
+            country = u.country,
+            age = u.birthDate?.let { calculateAge(it) },
+            intention = u.intention,
+            matchId = matchId,
+            state = state,
+            expiresAt = expiresAt.ifEmpty { null },
+            revivedOnce = revivedOnce
+        )
+    }
+
+    private fun reviveMatch(matchId: String) {
+        viewModelScope.launch {
+            matchingService.reviveMatch(matchId)
+                .onSuccess {
+                    analytics.track(com.dating.core.domain.analytics.AppAnalytics.Events.MATCH_REVIVED)
+                    loadData()
+                }
+                .onFailure { error -> _state.update { it.copy(error = error.toUiText()) } }
+        }
+    }
+
+    private fun answerSafetyCheck(id: String, response: String) {
+        // Optimista: quitamos el check de la lista al instante para cerrar el diálogo.
+        _state.update { it.copy(pendingSafetyChecks = it.pendingSafetyChecks.filter { c -> c.id != id }) }
+        viewModelScope.launch {
+            matchingService.answerSafetyCheck(id, response)
+                .onSuccess {
+                    analytics.track(
+                        com.dating.core.domain.analytics.AppAnalytics.Events.SAFETY_CHECK_ANSWERED,
+                        mapOf("response" to response)
+                    )
+                }
+                .onFailure { error -> _events.send(MatchesEvent.Error(error.toUiText())) }
+        }
+    }
 
     private fun confirmDeleteMatch() {
         val match = _state.value.matchToDelete ?: return

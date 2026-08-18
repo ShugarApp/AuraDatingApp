@@ -33,4 +33,12 @@ sealed class MessageUi(open val id: String) {
         override val id: String,
         val date: UiText,
     ): MessageUi(id)
+
+    // RN-1.4 — mensaje de sistema (p. ej. match incompatible). `kind` decide el texto y si ofrece
+    // la acción continuar/cerrar.
+    data class SystemMessage(
+        override val id: String,
+        val kind: String,
+        val formattedSentTime: UiText,
+    ): MessageUi(id)
 }

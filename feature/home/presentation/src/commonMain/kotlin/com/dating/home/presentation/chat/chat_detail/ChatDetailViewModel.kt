@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -64,7 +65,8 @@ class ChatDetailViewModel(
     private val connectionClient: ChatConnectionClient,
     private val blockService: BlockService,
     private val matchingService: MatchingService,
-    private val reportService: ReportService
+    private val reportService: ReportService,
+    private val analytics: com.dating.core.domain.analytics.AppAnalytics
 ) : ViewModel() {
 
     private val eventChannel = Channel<ChatDetailEvent>()
@@ -151,6 +153,7 @@ class ChatDetailViewModel(
                 observeCanSendMessage()
                 observeTypingIndicators()
                 observeMessagesRead()
+                observeMatchInfo()
                 hasLoadedInitialData = true
             }
         }
@@ -159,6 +162,31 @@ class ChatDetailViewModel(
             started = SharingStarted.WhileSubscribed(5_000L),
             initialValue = ChatDetailState()
         )
+
+    // Módulo 1/4 — trae la intención + timer 48h del match del otro participante al header.
+    private fun observeMatchInfo() {
+        viewModelScope.launch {
+            state
+                .map { it.chatUi?.otherParticipants?.firstOrNull()?.id }
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collect { otherUserId ->
+                    matchingService.getMatches().onSuccess { matches ->
+                        val m = matches.firstOrNull { it.user.id == otherUserId }
+                        if (m != null) {
+                            _state.update {
+                                it.copy(
+                                    otherUserIntention = m.user.intention,
+                                    matchId = m.matchId,
+                                    matchState = m.state,
+                                    matchExpiresAt = m.expiresAt
+                                )
+                            }
+                        }
+                    }
+                }
+        }
+    }
 
     fun onAction(action: ChatDetailAction) {
         when (action) {
@@ -190,8 +218,11 @@ class ChatDetailViewModel(
             ChatDetailAction.OnConfirmDeleteMatch -> confirmDeleteMatch()
             ChatDetailAction.OnDismissDeleteMatchDialog -> _state.update { it.copy(showDeleteMatchDialog = false) }
             ChatDetailAction.OnReportUserClick -> onReportUserClick()
+            is ChatDetailAction.OnReportMessageClick -> _state.update {
+                it.copy(messageWithOpenMenu = null, reportingMessageId = action.messageId, showReportSheet = true)
+            }
             is ChatDetailAction.OnSubmitReport -> submitReport(action.reason, action.description)
-            ChatDetailAction.OnDismissReportSheet -> _state.update { it.copy(showReportSheet = false) }
+            ChatDetailAction.OnDismissReportSheet -> _state.update { it.copy(showReportSheet = false, reportingMessageId = null) }
             ChatDetailAction.OnConfirmBlockAfterReport -> {
                 _state.update { it.copy(showBlockAfterReportDialog = false) }
                 confirmBlockUser()
@@ -207,8 +238,14 @@ class ChatDetailViewModel(
             ChatDetailAction.OnPreviousSearchResult -> navigateSearchResult(forward = false)
             ChatDetailAction.OnProposeDateClick -> onProposeDateClick()
             ChatDetailAction.OnDismissDateProposalSheet -> onDismissDateProposalSheet()
-            is ChatDetailAction.OnSubmitDateProposal -> submitDateProposal(action.dateTime, action.location)
-            is ChatDetailAction.OnAcceptProposal -> updateProposalStatus(action.messageId, DateProposalStatus.ACCEPTED)
+            is ChatDetailAction.OnSubmitDateProposal -> {
+                analytics.track(com.dating.core.domain.analytics.AppAnalytics.Events.PLAN_PROPOSED)
+                submitDateProposal(action.dateTime, action.location)
+            }
+            is ChatDetailAction.OnAcceptProposal -> {
+                analytics.track(com.dating.core.domain.analytics.AppAnalytics.Events.PLAN_CONFIRMED)
+                updateProposalStatus(action.messageId, DateProposalStatus.ACCEPTED)
+            }
             is ChatDetailAction.OnRejectProposal -> updateProposalStatus(action.messageId, DateProposalStatus.REJECTED)
             is ChatDetailAction.OnCancelProposal -> updateProposalStatus(action.messageId, DateProposalStatus.CANCELLED)
             is ChatDetailAction.OnEditProposal -> onEditProposal(action.messageId, action.dateTime, action.location)
@@ -680,14 +717,25 @@ class ChatDetailViewModel(
 
     private fun submitReport(reason: ReportReason, description: String?) {
         val otherUserId = state.value.chatUi?.otherParticipants?.firstOrNull()?.id ?: return
+        val messageId = state.value.reportingMessageId          // evidence when reporting a message (RN-2.1)
+        val category = categoryForReason(reason)
         viewModelScope.launch {
             _state.update { it.copy(isSubmittingReport = true) }
-            reportService.reportUser(otherUserId, reason, description)
+            reportService.reportUser(
+                userId = otherUserId,
+                reason = reason,
+                description = description,
+                messageId = messageId,
+                matchId = state.value.matchId ?: state.value.chatUi?.id,
+                matchIntention = state.value.otherUserIntention,   // snapshot (RN-2.1)
+                category = category
+            )
                 .onSuccess {
-                    _state.update { it.copy(isSubmittingReport = false, showReportSheet = false, showBlockAfterReportDialog = true) }
+                    analytics.track(com.dating.core.domain.analytics.AppAnalytics.Events.REPORT_CREATED)
+                    _state.update { it.copy(isSubmittingReport = false, showReportSheet = false, reportingMessageId = null, showBlockAfterReportDialog = true) }
                 }
                 .onFailure { error ->
-                    _state.update { it.copy(isSubmittingReport = false, showReportSheet = false) }
+                    _state.update { it.copy(isSubmittingReport = false, showReportSheet = false, reportingMessageId = null) }
                     when (error) {
                         DataError.Remote.CONFLICT -> eventChannel.send(
                             ChatDetailEvent.OnError(UiText.Resource(Res.string.report_duplicate))
@@ -697,6 +745,13 @@ class ChatDetailViewModel(
                     }
                 }
         }
+    }
+
+    /** Maps a report reason onto the Módulo 2 category taxonomy (RN-2.1). */
+    private fun categoryForReason(reason: ReportReason): String? = when (reason) {
+        ReportReason.HARASSMENT -> "harassment"
+        ReportReason.FAKE_PROFILE -> "fake_profile"
+        else -> null
     }
 
     private fun toggleMessageSearch() {
@@ -808,6 +863,19 @@ class ChatDetailViewModel(
                 editingProposalLocation = null
             )
         }
+        loadSuggestedVenues()
+    }
+
+    // Módulo 4 (RN-4.9) — venues curados; espacios públicos primero. Se cargan al abrir el sheet.
+    private fun loadSuggestedVenues() {
+        if (_state.value.suggestedVenues.isNotEmpty()) return
+        viewModelScope.launch {
+            matchingService.getVenues().onSuccess { venues ->
+                _state.update {
+                    it.copy(suggestedVenues = venues.sortedByDescending { v -> v.isPublicSpace })
+                }
+            }
+        }
     }
 
     private fun onDismissDateProposalSheet() {
@@ -901,6 +969,7 @@ class ChatDetailViewModel(
                 editingProposalLocation = location
             )
         }
+        loadSuggestedVenues()
     }
 
     companion object {

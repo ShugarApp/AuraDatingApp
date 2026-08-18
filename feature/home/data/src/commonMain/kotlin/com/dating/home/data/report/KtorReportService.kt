@@ -14,13 +14,21 @@ class KtorReportService(private val httpClient: HttpClient) : ReportService {
     override suspend fun reportUser(
         userId: String,
         reason: ReportReason,
-        description: String?
+        description: String?,
+        messageId: String?,
+        matchId: String?,
+        matchIntention: String?,
+        category: String?
     ): Result<ReportResult, DataError.Remote> {
         return httpClient.post<ReportRequestDto, ReportResponseDto>(
             route = "/users/$userId/report",
             body = ReportRequestDto(
                 reason = reason.name,
-                description = description?.takeIf { it.isNotBlank() }
+                description = description?.takeIf { it.isNotBlank() },
+                messageId = messageId,
+                matchId = matchId,
+                matchIntention = matchIntention,
+                category = category
             )
         ).map { dto ->
             ReportResult(id = dto.id, message = dto.message)

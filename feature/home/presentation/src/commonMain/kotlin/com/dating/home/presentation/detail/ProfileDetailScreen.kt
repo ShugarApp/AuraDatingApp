@@ -545,6 +545,14 @@ private fun ProfileDetailContent(
                                 )
                             }
                         }
+                        Spacer(Modifier.width(8.dp))
+                        com.dating.home.presentation.components.IntentionBadge(
+                            intentionCode = user.intention
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        com.dating.home.presentation.components.ReportedBadge(
+                            publicFlagUntil = user.publicFlagUntil
+                        )
                     }
                     if (location.isNotEmpty()) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

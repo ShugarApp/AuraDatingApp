@@ -81,6 +81,19 @@ class WebSocketChatConnectionClient(
             SharingStarted.WhileSubscribed(5000)
         )
 
+    override val radarPresence = parsedMessages
+        .filterIsInstance<IncomingWebSocketDto.RadarPresenceDto>()
+        .mapNotNull { dto ->
+            com.dating.home.domain.chat.RadarPresenceEvent(
+                userId = dto.userId,
+                present = dto.present
+            )
+        }
+        .shareIn(
+            applicationScope,
+            SharingStarted.WhileSubscribed(5000)
+        )
+
     override val connectionState = webSocketConnector.connectionState
 
     override suspend fun sendTyping(chatId: String) {
@@ -149,6 +162,10 @@ class WebSocketChatConnectionClient(
                 json.decodeFromString<IncomingWebSocketDto.DateProposalUpdatedDto>(message.payload)
             }
 
+            IncomingWebSocketType.RADAR_PRESENCE.name -> {
+                json.decodeFromString<IncomingWebSocketDto.RadarPresenceDto>(message.payload)
+            }
+
             else -> null
         }
     }
@@ -163,6 +180,7 @@ class WebSocketChatConnectionClient(
             is IncomingWebSocketDto.TypingIndicatorDto -> Unit
             is IncomingWebSocketDto.MessageReactionUpdatedDto -> handleReactionUpdated(message)
             is IncomingWebSocketDto.DateProposalUpdatedDto -> handleDateProposalUpdated(message)
+            is IncomingWebSocketDto.RadarPresenceDto -> Unit   // consumido por RadarViewModel vía flow
         }
     }
 

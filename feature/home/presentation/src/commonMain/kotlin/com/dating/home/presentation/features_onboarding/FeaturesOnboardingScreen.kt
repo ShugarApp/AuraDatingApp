@@ -90,20 +90,21 @@ fun FeaturesOnboardingScreen(
     val pagerState = rememberPagerState { 2 }
     val scope = rememberCoroutineScope()
 
-    val purpleAccent = Color(0xFF9B5CFF)
-    val blueAccent = Color(0xFF5C9BFF)
+    val purpleAccent = MaterialTheme.colorScheme.primary
+    val blueAccent = Color(0xFF3B82F6)
+    val bg = MaterialTheme.colorScheme.background
 
     val safetyGradient = listOf(
-        Color(0xFF1A0B2E),
-        Color(0xFF2D1B4E),
-        Color(0xFF1A0B2E),
-        Color(0xFF0E0714)
+        purpleAccent.copy(alpha = 0.12f),
+        purpleAccent.copy(alpha = 0.04f),
+        bg,
+        bg
     )
     val datesGradient = listOf(
-        Color(0xFF0B1A2E),
-        Color(0xFF1B2D4E),
-        Color(0xFF0B1A2E),
-        Color(0xFF0E0714)
+        blueAccent.copy(alpha = 0.12f),
+        blueAccent.copy(alpha = 0.04f),
+        bg,
+        bg
     )
 
     val safetyBadge1 = stringResource(Res.string.features_onboarding_safety_badge_1)
@@ -175,8 +176,8 @@ fun FeaturesOnboardingScreen(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color(0xFF0E0714).copy(alpha = 0.8f),
-                            Color(0xFF0E0714)
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.85f),
+                            MaterialTheme.colorScheme.background
                         )
                     )
                 )
@@ -299,7 +300,7 @@ private fun OnboardingPageContent(
                     Icon(
                         imageVector = page.icon,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = page.accentColor,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -314,7 +315,7 @@ private fun OnboardingPageContent(
                     fontSize = 28.sp,
                     letterSpacing = (-0.5).sp
                 ),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -323,7 +324,7 @@ private fun OnboardingPageContent(
             Text(
                 text = page.subtitle,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
             )
@@ -376,7 +377,7 @@ private fun FeatureBadge(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.08f))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -401,7 +402,7 @@ private fun FeatureBadge(
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.1.sp
             ),
-            color = Color.White.copy(alpha = 0.9f)
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -421,9 +422,9 @@ private fun PageIndicator(
             val isSelected = index == currentPage
             val color by animateColorAsState(
                 targetValue = if (isSelected) {
-                    Color.White
+                    MaterialTheme.colorScheme.primary
                 } else {
-                    Color.White.copy(alpha = 0.3f)
+                    MaterialTheme.colorScheme.outlineVariant
                 },
                 animationSpec = tween(durationMillis = 300),
                 label = "indicator_color"

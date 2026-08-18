@@ -24,7 +24,14 @@ data class FeedState(
     val isAccountPaused: Boolean = false,
     val isResumingAccount: Boolean = false,
     val isIncognitoActive: Boolean = false,
-    val showVerifiedOnly: Boolean = false
+    val showVerifiedOnly: Boolean = false,
+    // Módulo 3 — scarcity & note-gated like
+    val remaining: Int = 0,
+    val resetsAt: String? = null,
+    val isDeckExhausted: Boolean = false,
+    val showLikeNoteSheet: Boolean = false,
+    val pendingLikeItem: FeedItem? = null,
+    val likeNoteError: Boolean = false
 )
 
 data class FeedItem(
@@ -35,7 +42,9 @@ data class FeedItem(
     val city: String?,
     val country: String?,
     val age: Int? = null,
-    val isVerified: Boolean = false
+    val isVerified: Boolean = false,
+    val intention: String = "open",
+    val publicFlagUntil: String? = null
 )
 
 sealed interface FeedAction {
@@ -59,6 +68,9 @@ sealed interface FeedAction {
     data object OnUndoSwipe : FeedAction
     data object OnResumeAccount : FeedAction
     data class OnUserBlocked(val userId: String) : FeedAction
+    // Módulo 3 — like note (RN-3.3)
+    data class OnSubmitLikeNote(val note: String) : FeedAction
+    data object OnDismissLikeNote : FeedAction
 }
 
 sealed interface FeedEvent {

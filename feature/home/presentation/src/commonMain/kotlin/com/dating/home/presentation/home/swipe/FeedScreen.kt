@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import aura.feature.home.presentation.generated.resources.Res
@@ -108,6 +109,8 @@ import com.dating.core.designsystem.components.header.MainTopAppBar
 import com.dating.core.domain.discovery.Gender
 import com.dating.home.presentation.home.swipe.components.MatchCelebrationOverlay
 import com.dating.home.presentation.home.swipe.components.RadarSearchAnimation
+import com.dating.home.presentation.components.IntentionBadge
+import com.dating.home.presentation.components.ReportedBadge
 import com.dating.home.presentation.home.swipe.components.SwipeableCard
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.painterResource
@@ -208,6 +211,27 @@ fun FeedScreen(
                         subtitle = stringResource(Res.string.feed_searching_desc),
                         modifier = Modifier.padding(horizontal = 32.dp)
                     )
+                } else if (state.isDeckExhausted && !state.isLoading) {
+                    // Módulo 3 — deck consumed: come back tomorrow (RN-3.5).
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Eso es todo por hoy",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "Te presentamos pocas personas a propósito. Vuelve mañana para tu nuevo grupo.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 } else if (state.feedItems.isEmpty() && !state.isLoading) {
                     EmptyFeedState(
                         onRefresh = { onAction(FeedAction.OnRefresh) },
@@ -255,6 +279,20 @@ fun FeedScreen(
                 }
             }
         }
+        }
+    }
+
+    if (state.showLikeNoteSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { onAction(FeedAction.OnDismissLikeNote) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
+        ) {
+            com.dating.home.presentation.home.swipe.components.LikeNoteSheetContent(
+                targetName = state.pendingLikeItem?.username,
+                isError = state.likeNoteError,
+                onSubmit = { note -> onAction(FeedAction.OnSubmitLikeNote(note)) }
+            )
         }
     }
 
@@ -343,7 +381,7 @@ fun FeedCardContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(28.dp))
             .clickable(onClick = onClick)
     ) {
         // Photo or placeholder
@@ -435,10 +473,12 @@ fun FeedCardContent(
                     Icon(
                         imageVector = Icons.Default.VerifiedUser,
                         contentDescription = "Verificado",
-                        tint = Color(0xFF4FC3F7),
+                        tint = Color(0xFF38BDF8),
                         modifier = Modifier.size(22.dp)
                     )
                 }
+                IntentionBadge(intentionCode = feedItem.intention)
+                ReportedBadge(publicFlagUntil = feedItem.publicFlagUntil)
             }
             val location = listOfNotNull(feedItem.city, feedItem.country).joinToString(", ")
             if (location.isNotEmpty()) {
